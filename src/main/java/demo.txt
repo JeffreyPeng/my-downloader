@@ -1,0 +1,12 @@
+root@ubuntu:~# wget http://down.sandai.net/XLNetAcc/XLNetAccSetup.exe
+--2016-10-09 13:55:10--  http://down.sandai.net/XLNetAcc/XLNetAccSetup.exe
+Resolving down.sandai.net (down.sandai.net)... 122.143.5.76, 122.143.5.52, 122.143.5.53, ...
+Connecting to down.sandai.net (down.sandai.net)|122.143.5.76|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 6051144 (5.8M) [application/octet-stream]
+Saving to: ‘XLNetAccSetup.exe’
+
+XLNetAccSetup.exe             35%[==============>                              ]   2.02M   116KB/s    eta 43s
+XLNetAccSetup.exe            100%[============================================>]   5.77M   315KB/s    in 41s
+
+2016-10-09 13:55:55 (143 KB/s) - ‘XLNetAccSetup.exe’ saved [6051144/6051144]
