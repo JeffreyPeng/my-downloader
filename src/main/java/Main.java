@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Console console = System.console();
         if (console != null) {
-            console.writer().write("asdf");
+            console.writer().format("asdf");
             console.writer().write("\b\b");
             console.writer().write("g");
             console.flush();
