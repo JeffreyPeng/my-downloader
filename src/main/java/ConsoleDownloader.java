@@ -67,12 +67,14 @@ class ConsolePrinter implements Runnable {
     private ConsoleDownloader downloader;
 
     public void startPrint() {
-        new Thread(this).start();
         console = System.console();
+        startTime = System.currentTimeMillis();
+        new Thread(this).start();
     }
     Console console;
     long lastSpeed = 0;
     long lastPos = 0;
+    long startTime = 0;
 
     @Override
     public void run() {
@@ -92,18 +94,52 @@ class ConsolePrinter implements Runnable {
                 }
                 lastSpeed = newSpeed;
                 lastPos = pos;
-                String needTime = "eta 41s";
-                String totalTime = "in 43s";
+                String timsShow = "unknow";
+                if (percent == 100) {
+                    timsShow = "in " + secondToShow((System.currentTimeMillis() - startTime) / 1000);
+                } else {
+                    if (newSpeed != 0) {
+                        timsShow = "eta " + secondToShow((length - pos) / newSpeed);
+                    }
+                }
                 if (console != null) {
                     console.writer().write("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"); // 40
                     console.writer().write("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"); // 40
+                    console.writer().write("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"); // 40
                     console.writer().printf("progress: % 4d%%", percent);
-                    console.writer().printf("[================================>]");
-                    console.writer().printf("% 8s", downloadedSize);
-                    console.writer().printf("% 10s", speed);
-                    console.writer().printf("% 11s", needTime);
+                    String template1 = "================================>";
+                    String template2 = "                                 ";
+                    int slot = 33;
+                    int index = slot * (int)percent / 100;
+                    console.writer().printf("[");
+                    if (index == 0) {
+                        console.writer().printf(">                                ");
+                    } else if (index == slot) {
+                        console.writer().printf("================================>");
+                    } else {
+                        console.writer().printf(template1.substring(0, index));
+                        console.writer().printf(">");
+                        console.writer().printf(template2.substring(0, slot - index));
+                    }
+                    console.writer().printf("]");
+                    console.writer().printf("%8s", downloadedSize);
+                    console.writer().printf("%11s", speed);
+                    console.writer().printf("%11s", timsShow);
+                    console.writer().printf("   ");
+                } else {
+                    System.out.println(String.format("progress: % 4d%%%8s%11s%11s", percent, downloadedSize, speed, timsShow));
                 }
-                Thread.sleep(1000);
+
+                if (percent == 100) {
+                    if (console != null) {
+                        console.writer().println();
+                    } else {
+                        System.out.println();
+                    }
+                    break;
+                } else {
+                    Thread.sleep(1000);
+                }
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -112,12 +148,35 @@ class ConsolePrinter implements Runnable {
     public String byteToShow(long bytes) {
         if (bytes < 1000L) {
             return bytes + "B";
-        } else if (bytes < 1000_000) {
+        } else if (bytes < 1000_000L) {
             return String.format("%.2fKB", bytes / 1000.0);
-        } else if (bytes < 1000_000_000) {
+        } else if (bytes < 1000_000_000L) {
             return String.format("%.2fMB", bytes / 1000_000.0);
         } else {
             return String.format("%.2fGB", bytes / 1000_000_000.0);
+        }
+    }
+    public String secondToShow(long seconds) {
+        if (seconds < 60) {
+            return seconds + "s";
+        } else if (seconds < 60 * 60) {
+            if (seconds % 60 == 0) {
+                return (seconds / 60) + "m";
+            } else {
+                return (seconds / 60) + "m" + (seconds % 60) + "s";
+            }
+        } else if (seconds < 24 * 60 * 60) {
+            if ((seconds / 60 % 60) == 0) {
+                return (seconds / 60 / 60) + "h";
+            } else {
+                return (seconds / 60 / 60) + "h" + (seconds / 60 % 60) + "m";
+            }
+        } else {
+            if ((seconds / 60 / 60 % 24) == 0) {
+                return (seconds / 60 / 60 / 24) + "d";
+            } else {
+                return (seconds / 60 / 60 / 24) + "d" + (seconds / 60 / 60 % 24) + "h";
+            }
         }
     }
 }
