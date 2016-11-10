@@ -18,16 +18,8 @@ public class ConsoleDownloader {
         return pos;
     }
 
-    public void setPos(long pos) {
-        this.pos = pos;
-    }
-
     public long getLength() {
         return length;
-    }
-
-    public void setLength(long length) {
-        this.length = length;
     }
 
     public static void main(String[] args) {
@@ -83,23 +75,23 @@ class ConsolePrinter implements Runnable {
                 long pos = downloader.getPos();
                 long length = downloader.getLength();
                 long percent = pos * 100 /length;
-                String downloadedSize = byteToShow(pos);
+                String downloadedSize = CalcUtil.ByteToShow(pos);
                 String speed = "";
                 long newSpeed = pos - lastPos;
                 if (lastSpeed == 0) {
-                    speed = byteToShow(newSpeed) + "/s";
+                    speed = CalcUtil.ByteToShow(newSpeed) + "/s";
                 } else {
                     newSpeed = lastSpeed + (newSpeed - lastSpeed) / 2;
-                    speed = byteToShow(newSpeed) + "/s";
+                    speed = CalcUtil.ByteToShow(newSpeed) + "/s";
                 }
                 lastSpeed = newSpeed;
                 lastPos = pos;
                 String timsShow = "unknow";
                 if (percent == 100) {
-                    timsShow = "in " + secondToShow((System.currentTimeMillis() - startTime) / 1000);
+                    timsShow = "in " + CalcUtil.SecondToShow((System.currentTimeMillis() - startTime) / 1000);
                 } else {
                     if (newSpeed != 0) {
-                        timsShow = "eta " + secondToShow((length - pos) / newSpeed);
+                        timsShow = "eta " + CalcUtil.SecondToShow((length - pos) / newSpeed);
                     }
                 }
                 if (console != null) {
@@ -145,38 +137,5 @@ class ConsolePrinter implements Runnable {
             e.printStackTrace();
         }
     }
-    public String byteToShow(long bytes) {
-        if (bytes < 1000L) {
-            return bytes + "B";
-        } else if (bytes < 1000_000L) {
-            return String.format("%.2fKB", bytes / 1000.0);
-        } else if (bytes < 1000_000_000L) {
-            return String.format("%.2fMB", bytes / 1000_000.0);
-        } else {
-            return String.format("%.2fGB", bytes / 1000_000_000.0);
-        }
-    }
-    public String secondToShow(long seconds) {
-        if (seconds < 60) {
-            return seconds + "s";
-        } else if (seconds < 60 * 60) {
-            if (seconds % 60 == 0) {
-                return (seconds / 60) + "m";
-            } else {
-                return (seconds / 60) + "m" + (seconds % 60) + "s";
-            }
-        } else if (seconds < 24 * 60 * 60) {
-            if ((seconds / 60 % 60) == 0) {
-                return (seconds / 60 / 60) + "h";
-            } else {
-                return (seconds / 60 / 60) + "h" + (seconds / 60 % 60) + "m";
-            }
-        } else {
-            if ((seconds / 60 / 60 % 24) == 0) {
-                return (seconds / 60 / 60 / 24) + "d";
-            } else {
-                return (seconds / 60 / 60 / 24) + "d" + (seconds / 60 / 60 % 24) + "h";
-            }
-        }
-    }
+
 }
