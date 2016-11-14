@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Set;
 
 /**
  * Created by pengyuxiang1 on 2016/11/10.
@@ -43,7 +44,7 @@ public class GuiDownloader {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String url = text1.getText();
-                String filePath = text2.getText() + "/" + CalcUtil.ParseFileName(url);
+                String filePath = text2.getText();
                 new Thread(new Downloader(url, filePath, progressbar, stateLabel)).start();
             }
         });
@@ -70,13 +71,28 @@ public class GuiDownloader {
 
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            UIManager.setLookAndFeel (UIManager.getSystemLookAndFeelClassName ());
+            setDefaultSize(12);
         } catch (Exception e) {
             e.printStackTrace();
         }
         new GuiDownloader();
     }
 
+    public static void setDefaultSize(int size) {
+        Set<Object> keySet = UIManager.getLookAndFeelDefaults().keySet();
+        Object[] keys = keySet.toArray(new Object[keySet.size()]);
+        for (Object key : keys) {
+            if (key != null && key.toString().toLowerCase().contains("font")) {
+                System.out.println(key);
+                Font font = UIManager.getDefaults().getFont(key);
+                if (font != null) {
+                    font = font.deriveFont((float)size);
+                    UIManager.put(key, font);
+                }
+            }
+        }
+    }
 }
 class Downloader implements Runnable {
     private String url;
@@ -118,7 +134,8 @@ class Downloader implements Runnable {
             InputStream inputStream = urlConnection.getInputStream();
             byte []bytes = new byte[1024*8];
             int readCount = inputStream.read(bytes);
-            FileOutputStream outputStream = new FileOutputStream(filePath);
+            String finalPath = filePath + "/" + CalcUtil.ParseFileName(urlConnection.getURL().toString());
+            FileOutputStream outputStream = new FileOutputStream(finalPath);
             pos = 0;
             new GuiPrinter(this).startPrint();
             while (readCount != -1) {
