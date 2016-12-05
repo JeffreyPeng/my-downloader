@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,7 +9,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by pengyuxiang1 on 2016/11/10.
@@ -43,9 +47,17 @@ public class GuiDownloader {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String url = text1.getText();
-                String filePath = text2.getText();
-                new Thread(new Downloader(url, filePath, progressbar, stateLabel)).start();
+                if (null != text1.getText()) {
+                    new Thread(new Downloader(text1.getText(), text2.getText(), progressbar, stateLabel)).start();
+                } else {
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    List<String> urlList = null; // TO EDIT
+                    List<String> fileList = null; // TO EDIT
+                    for (int i = 0; i < urlList.size(); i++) {
+                        executorService.execute(new Thread(new Downloader(urlList.get(i), text2.getText() + fileList.get(i), progressbar, stateLabel)));
+                    }
+                    executorService.shutdown();
+                }
             }
         });
         progressbar = new JProgressBar();
@@ -134,7 +146,10 @@ class Downloader implements Runnable {
             InputStream inputStream = urlConnection.getInputStream();
             byte []bytes = new byte[1024*8];
             int readCount = inputStream.read(bytes);
-            String finalPath = filePath + "/" + CalcUtil.ParseFileName(urlConnection.getURL().toString());
+            String finalPath = filePath;
+            if (filePath.indexOf("/") == filePath.length() - 1) {
+                finalPath = filePath + CalcUtil.ParseFileName(urlConnection.getURL().toString());
+            }
             FileOutputStream outputStream = new FileOutputStream(finalPath);
             pos = 0;
             new GuiPrinter(this).startPrint();
